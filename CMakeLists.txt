@@ -7,15 +7,22 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(ADDON_DIR "./../godot/addons/${CMAKE_PROJECT_NAME}/")
 # set(ADDON_DIR "${CMAKE_CURRENT_SOURCE_DIR}/godot/addons/${CMAKE_PROJECT_NAME}")
 
+set(EXTERNAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/")
+
 include(FetchContent)
+
+# add_custom_target(purge_externals
+#         COMMAND ${CMAKE_COMMAND} -E rm -rf ${EXTERNAL_DIR}
+#         COMMENT "Clearing all fetched dependencies..."
+# )
 
 FetchContent_Declare(
         godot-cpp
-        GIT_REPOSITORY https://github.com/godotengine/godot-cpp.git
-        GIT_TAG godot-4.5-stable
-        SOURCE_DIR     ${CMAKE_CURRENT_SOURCE_DIR}/external/godot-cpp
+        URL https://github.com/godotengine/godot-cpp/archive/refs/tags/godot-4.5-stable.zip
+        SOURCE_DIR     ${EXTERNAL_DIR}godot-cpp
 )
 FetchContent_MakeAvailable(godot-cpp)
+
 
 add_library(${CMAKE_PROJECT_NAME} SHARED
         src/register_types.cpp
