@@ -152,10 +152,18 @@ void ScriptSwitcher::_input(const Ref<InputEvent> &event)
                 EditorInterface::get_singleton()->edit_resource(script_res);
         }
 
-        if (popup->is_visible() && key_event->is_pressed() && key == KEY_TAB)
+        if (popup->is_visible() && key_event->is_pressed() && (key == KEY_TAB || key == KEY_DOWN))
         {
                 int selected_index = item_list->get_selected_items()[0];
                 int next_index = (selected_index + 1) % item_list->get_item_count();
+                item_list->select(next_index);
+                get_viewport()->set_input_as_handled();
+        }
+
+        if (popup->is_visible() && key_event->is_pressed() && key == KEY_UP)
+        {
+                int selected_index = item_list->get_selected_items()[0];
+                int next_index = (selected_index - 1) % item_list->get_item_count();
                 item_list->select(next_index);
                 get_viewport()->set_input_as_handled();
         }
