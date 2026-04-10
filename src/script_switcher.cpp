@@ -94,37 +94,28 @@ void ScriptSwitcher::_on_script_changed(const Ref<Script> &script)
 {
         if (script.is_null())
         {
-                UtilityFunctions::print("Null script!");
+                UtilityFunctions::printerr("Null script!");
                 return;
         }
 
         String path = script->get_path();
         if (path.is_empty())
         {
-                UtilityFunctions::print("Empty script path!");
+                UtilityFunctions::printerr("Empty script path!");
                 return;
         }
 
-        // ! debugging
-        // UtilityFunctions::print("script changed: " + path);
-
-        // Move to front of MRU history
+        // ? MRU History - The idea is simple: active script moves to the front
         for (int i = 0; i < history.size(); ++i)
         {
                 if (history[i] == path)
                 {
-                        // history.remove_at(i);
                         history.erase(history.begin() + i);
                         break;
                 }
         }
-        // history.begin(path, 0);
-        history.insert(history.begin(), path);
-}
 
-void ScriptSwitcher::_popup_input(const Ref<InputEvent> &event)
-{
-        UtilityFunctions::print("popup event!");
+        history.insert(history.begin(), path);
 }
 
 void ScriptSwitcher::_input(const Ref<InputEvent> &event)

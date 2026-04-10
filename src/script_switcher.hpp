@@ -35,8 +35,6 @@ public:
 
         virtual void _input(const Ref<InputEvent> &event) override;
 
-        void _popup_input(const Ref<InputEvent> &event);
-
         void _enter_tree() override;
 
         void _exit_tree() override;
