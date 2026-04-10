@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://cle505r20rfwq"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mqfw4"]
+content_margin_left = 5.0
+content_margin_top = 2.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.6248434, 0.5205767, 0.91991705, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.16078432, 0.16078432, 0.16078432, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="Theme" id="Theme_mqfw4"]
+PanelContainer/styles/panel = SubResource("StyleBoxFlat_mqfw4")
+
+[node name="ScriptSwitcherPanel" type="PanelContainer" unique_id=1994007103]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -115.5
+offset_top = 43.0
+offset_right = 115.5
+offset_bottom = 70.0
+grow_horizontal = 2
+size_flags_vertical = 3
+theme = SubResource("Theme_mqfw4")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1824943433]
+layout_mode = 2
+
+[node name="HelpLabel" type="Label" parent="VBoxContainer" unique_id=970401896]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Hold Ctrl and tap Tab to cycle!"
+
+[node name="ItemList" type="ItemList" parent="VBoxContainer" unique_id=1066745575]
+unique_name_in_owner = true
+clip_contents = false
+layout_mode = 2
+size_flags_vertical = 3
+auto_width = true
+auto_height = true
+item_count = 2
+item_0/text = "Test"
+item_1/text = "Test 2"

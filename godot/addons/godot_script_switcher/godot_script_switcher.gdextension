@@ -1,0 +1,9 @@
+[configuration]
+entry_symbol = "script_switcher_init"
+compatibility_minimum = "4.6"
+reloadable = false
+
+[libraries]
+windows.debug.x86_64 = "res://addons/godot_script_switcher/godot_script_switcher.dll"
+linux.debug.x86_64 = "res://addons/godot_script_switcher/godot_script_switcher.so"
+macos.debug = "res://addons/godot_script_switcher/godot_script_switcher.dylib"
