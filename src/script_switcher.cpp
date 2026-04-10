@@ -151,7 +151,6 @@ void ScriptSwitcher::_input(const Ref<InputEvent> &event)
         {
                 popup->hide();
                 get_viewport()->set_input_as_handled();
-                UtilityFunctions::print("popup->hide()");
 
                 int selected_index = item_list->get_selected_items()[0];
                 if (selected_index >= history.size())
