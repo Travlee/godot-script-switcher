@@ -14,8 +14,6 @@ ScriptSwitcher::~ScriptSwitcher() {}
 
 void ScriptSwitcher::_bind_methods()
 {
-        ClassDB::bind_method(D_METHOD("_enter_tree"), &ScriptSwitcher::_enter_tree);
-        ClassDB::bind_method(D_METHOD("_exit_tree"), &ScriptSwitcher::_exit_tree);
         ClassDB::bind_method(D_METHOD("_on_script_changed", "script"), &ScriptSwitcher::_on_script_changed);
 }
 
@@ -74,19 +72,9 @@ void ScriptSwitcher::_exit_tree()
                 popup->queue_free();
         }
 
-        if (item_list)
-        {
-                item_list->queue_free();
-        }
-
         if (script_editor && script_editor->is_connected("editor_script_changed", Callable(this, "_on_script_changed")))
         {
                 script_editor->disconnect("editor_script_changed", Callable(this, "_on_script_changed"));
-        }
-
-        if (script_editor)
-        {
-                script_editor->queue_free();
         }
 }
 
