@@ -21,7 +21,7 @@ private:
         ItemList *item_list;
         std::vector<String> history;
 
-        void _update_list_ui();
+        void _update_list();
         void _load_popup();
 
 protected:

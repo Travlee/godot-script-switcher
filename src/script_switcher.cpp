@@ -1,14 +1,8 @@
 #include <godot_cpp/classes/editor_interface.hpp>
 #include <godot_cpp/classes/input_event_key.hpp>
 #include <godot_cpp/classes/resource_loader.hpp>
-#include <godot_cpp/classes/v_box_container.hpp>
-#include <godot_cpp/classes/label.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <godot_cpp/classes/viewport.hpp>
-#include <godot_cpp/classes/style_box.hpp>
-
-#include <godot_cpp/classes/theme.hpp>
-#include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/classes/packed_scene.hpp>
 
 #include "script_switcher.hpp"
@@ -20,14 +14,9 @@ ScriptSwitcher::~ScriptSwitcher() {}
 
 void ScriptSwitcher::_bind_methods()
 {
-        UtilityFunctions::print("_bind_methods()");
-
-        ClassDB::bind_method(D_METHOD("_on_script_changed", "script"), &ScriptSwitcher::_on_script_changed);
-
         ClassDB::bind_method(D_METHOD("_enter_tree"), &ScriptSwitcher::_enter_tree);
         ClassDB::bind_method(D_METHOD("_exit_tree"), &ScriptSwitcher::_exit_tree);
-
-        ClassDB::bind_method(D_METHOD("_update_list_ui"), &ScriptSwitcher::_update_list_ui);
+        ClassDB::bind_method(D_METHOD("_on_script_changed", "script"), &ScriptSwitcher::_on_script_changed);
 }
 
 void ScriptSwitcher::_load_popup()
@@ -45,45 +34,24 @@ void ScriptSwitcher::_load_popup()
         }
 
         popup = cast_to<PanelContainer>(scene_resource->instantiate());
-
         if (!popup)
         {
                 UtilityFunctions::printerr("Failed to instantiate popup!");
                 return;
         }
 
+        item_list = popup->get_node<ItemList>("%ItemList");
+        if (!item_list)
+        {
+                UtilityFunctions::printerr("Failed to load ItemList!");
+                return;
+        }
+
+        // ? Not sure which parent is best ...
         // EditorInterface::get_singleton()->get_base_control()->add_child(popup);
         add_child(popup);
 
-        // Ref<Theme> editor_theme = EditorInterface::get_singleton()->get_base_control()->get_theme();
-        // Ref<Theme> editor_theme = EditorInterface::get_singleton()->get_base_control()->get_theme_stylebox("panelcontainer", "EditorStyles");
-        // popup->set_theme(editor_theme);
         popup->hide();
-
-        // You can now access children by name if needed
-        // Label *lbl = panel_instance->get_node<Label>("MyLabel");
-
-
-
-        // ? Archive
-        // popup = memnew(PanelContainer);
-        // item_list = memnew(ItemList);
-
-        // popup->set_anchors_and_offsets_preset(Control::PRESET_CENTER_TOP);
-        // popup->set_z_index(1000);
-
-        // VBoxContainer *vbox = memnew(VBoxContainer);
-        // Label *help_label = memnew(Label);
-        // help_label->set_text(" Recent Scripts (Hold Ctrl to cycle)");
-        // help_label->set_mouse_filter(Control::MOUSE_FILTER_PASS);
-
-        // vbox->add_child(help_label);
-        // vbox->add_child(item_list);
-        // item_list->set_v_size_flags(Control::SIZE_EXPAND_FILL);
-        // popup->add_child(vbox);
-        // popup->hide();
-
-        // popup->connect("_input", Callable(this, "_popup_input"));
 }
 
 void ScriptSwitcher::_enter_tree()
@@ -164,7 +132,8 @@ void ScriptSwitcher::_input(const Ref<InputEvent> &event)
         // TODO rework this to a configurable keybind for the plugin
 
         // ? Best method I could find to limit functionalty to when script editor is active
-        if (!script_editor->is_visible_in_tree()){
+        if (!script_editor->is_visible_in_tree())
+        {
                 return;
         }
 
@@ -179,12 +148,10 @@ void ScriptSwitcher::_input(const Ref<InputEvent> &event)
 
         if (!popup->is_visible() && key_event->is_pressed() && key == KEY_TAB && key_event->is_command_or_control_pressed())
         {
-                this->_update_list_ui();
+                this->_update_list();
                 popup->show();
 
                 get_viewport()->set_input_as_handled();
-
-                UtilityFunctions::print("popup->show()");
 
                 return;
         }
@@ -194,59 +161,40 @@ void ScriptSwitcher::_input(const Ref<InputEvent> &event)
                 popup->hide();
                 get_viewport()->set_input_as_handled();
                 UtilityFunctions::print("popup->hide()");
+
+                int selected_index = item_list->get_selected_items()[0];
+                if (selected_index >= history.size())
+                {
+                        UtilityFunctions::printerr("Invalid history item!");
+                        return;
+                }
+                String path = history[selected_index];
+
+                Ref<Resource> script_res = ResourceLoader::get_singleton()->load(path);
+                EditorInterface::get_singleton()->edit_resource(script_res);
         }
 
         if (popup->is_visible() && key_event->is_pressed() && key == KEY_TAB)
         {
+                int selected_index = item_list->get_selected_items()[0];
+                int next_index = (selected_index + 1) % item_list->get_item_count();
+                item_list->select(next_index);
                 get_viewport()->set_input_as_handled();
-                UtilityFunctions::print("itemlist->cycle");
         }
-
-        return;
-
-        // if (key_event->is_pressed() && key_event->get_keycode() == KEY_TAB && key_event->is_command_or_control_pressed())
-        // {
-        //         if (!popup->is_visible())
-        //         {
-        //                 _update_list_ui();
-        //                 popup->popup();
-
-        //                 // Select second item (the "previous" script)
-        //                 if (item_list->get_item_count() > 1)
-        //                 {
-        //                         item_list->select(1);
-        //                 }
-        //         }
-        //         else
-        //         {
-        //                 // Cycle selection
-        //                 int next = (item_list->get_selected_items()[0] + 1) % item_list->get_item_count();
-        //                 item_list->select(next);
-        //         }
-
-        //         get_viewport()->set_input_as_handled();
-        // }
-
-        // // Logic: If Ctrl is released, switch to selected script
-        // if (!key_event->is_pressed() && !key_event->is_command_or_control_pressed() && popup->is_visible())
-        // {
-        //         int selected = item_list->get_selected_items()[0];
-        //         String path = history[selected];
-
-        //         Ref<Resource> res = ResourceLoader::get_singleton()->load(path);
-        //         EditorInterface::get_singleton()->edit_resource(res);
-
-        //         popup->hide();
-        //         get_viewport()->set_input_as_handled();
-        // }
 }
 
-void ScriptSwitcher::_update_list_ui()
+void ScriptSwitcher::_update_list()
 {
         item_list->clear();
         for (const String &path : history)
         {
                 item_list->add_item(path.get_file());
                 item_list->set_item_tooltip(item_list->get_item_count() - 1, path);
+        }
+
+        // ? Selects previous script for faster switching
+        if (item_list->get_item_count() > 1)
+        {
+                item_list->select(1);
         }
 }
