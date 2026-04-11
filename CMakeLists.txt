@@ -9,12 +9,25 @@ set(ADDON_DIR "./../godot/addons/${CMAKE_PROJECT_NAME}/")
 
 set(EXTERNAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/")
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(SUFFIX "debug")
+else()
+        set(SUFFIX "release")
+endif()
+
+if(WIN32)
+        set(PLATFORM "windows")
+        set(EXT "dll")
+elseif(APPLE)
+        set(PLATFORM "macos")
+        set(EXT "dylib")
+else()
+        set(PLATFORM "linux")
+        set(EXT "so")
+endif()
+
 include(FetchContent)
 
-# add_custom_target(purge_externals
-#         COMMAND ${CMAKE_COMMAND} -E rm -rf ${EXTERNAL_DIR}
-#         COMMENT "Clearing all fetched dependencies..."
-# )
 
 FetchContent_Declare(
         godot-cpp
@@ -32,11 +45,13 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
 target_link_libraries(${CMAKE_PROJECT_NAME} godot-cpp)
 
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
-        PREFIX ""
         LIBRARY_OUTPUT_DIRECTORY ${ADDON_DIR}
         RUNTIME_OUTPUT_DIRECTORY ${ADDON_DIR}
         ARCHIVE_OUTPUT_DIRECTORY ${ADDON_DIR}
-        OUTPUT_NAME ${CMAKE_PROJECT_NAME}
+
+        PREFIX ""
+        SUFFIX ".${EXT}"
+        OUTPUT_NAME "${CMAKE_PROJECT_NAME}.${SUFFIX}"
 )
 
 # maybe unnecessary

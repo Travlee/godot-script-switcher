@@ -4,6 +4,9 @@ compatibility_minimum = "4.6"
 reloadable = true
 
 [libraries]
-windows.debug.x86_64 = "res://addons/godot_script_switcher/godot_script_switcher.dll"
-linux.debug.x86_64 = "res://addons/godot_script_switcher/godot_script_switcher.so"
-macos.debug = "res://addons/godot_script_switcher/godot_script_switcher.dylib"
+windows.debug.x86_64 = "res://addons/godot_script_switcher/godot_script_switcher.debug.dll"
+windows.release.x86_64 = "res://addons/godot_script_switcher/godot_script_switcher.release.dll"
+linux.debug.x86_64 = "res://addons/godot_script_switcher/godot_script_switcher.debug.so"
+linux.release.x86_64 = "res://addons/godot_script_switcher/godot_script_switcher.release.so"
+macos.debug = "res://addons/godot_script_switcher/godot_script_switcher.debug.dylib"
+macos.release = "res://addons/godot_script_switcher/godot_script_switcher.release.dylib"
