@@ -1,24 +1,35 @@
 [gd_scene format=3 uid="uid://cle505r20rfwq"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lwd4w"]
+bg_color = Color(0.09019608, 0.09019608, 0.09019608, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ublbu"]
+bg_color = Color(0.20272335, 0.20272335, 0.20272332, 1)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mqfw4"]
 content_margin_left = 5.0
 content_margin_top = 5.0
 content_margin_right = 5.0
 content_margin_bottom = 5.0
-bg_color = Color(0.16078432, 0.16078432, 0.16078432, 1)
+bg_color = Color(0.09019608, 0.09019608, 0.09019608, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.16078432, 0.16078432, 0.16078432, 1)
+border_color = Color(0.09019608, 0.09019608, 0.09019608, 1)
+border_blend = true
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
+shadow_color = Color(0.070152484, 0.070152424, 0.070152424, 1)
+shadow_size = 8
 
 [sub_resource type="Theme" id="Theme_mqfw4"]
-Label/colors/font_color = Color(0.89790565, 0.56697065, 0, 1)
-Label/font_sizes/font_size = 12
+ItemList/styles/panel = SubResource("StyleBoxFlat_lwd4w")
+ItemList/styles/selected = SubResource("StyleBoxFlat_ublbu")
+Label/colors/font_color = Color(0.6509804, 0.6509804, 0.6509804, 1)
+Label/font_sizes/font_size = 16
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_mqfw4")
 
 [node name="ScriptSwitcherPanel" type="PanelContainer" unique_id=1994007103]
@@ -27,8 +38,8 @@ anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -115.5
 offset_top = 43.0
-offset_right = 115.5
-offset_bottom = 70.0
+offset_right = 184.5
+offset_bottom = 142.0
 grow_horizontal = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -45,7 +56,14 @@ text = "Hold <Ctrl> and tap <Tab>"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ItemList" type="ItemList" parent="VBoxContainer" unique_id=1066745575]
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer" unique_id=1471907139]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="ItemList" type="ItemList" parent="VBoxContainer/MarginContainer" unique_id=1066745575]
 unique_name_in_owner = true
 clip_contents = false
 layout_mode = 2
