@@ -22,7 +22,7 @@ void ScriptSwitcher::_load_popup()
 {
         ResourceLoader *loader = ResourceLoader::get_singleton();
 
-        const String scene_file_path = ADDON_DIR "script_switcher_panel.tscn";
+        const String scene_file_path = ADDON_DIR "godot_script_switcher_panel.tscn";
 
         Ref<PackedScene> scene_resource = loader->load(scene_file_path);
 

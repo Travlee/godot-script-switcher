@@ -2,10 +2,10 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mqfw4"]
 content_margin_left = 5.0
-content_margin_top = 2.0
+content_margin_top = 5.0
 content_margin_right = 5.0
 content_margin_bottom = 5.0
-bg_color = Color(0.6248434, 0.5205767, 0.91991705, 1)
+bg_color = Color(0.16078432, 0.16078432, 0.16078432, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
@@ -17,6 +17,8 @@ corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
 [sub_resource type="Theme" id="Theme_mqfw4"]
+Label/colors/font_color = Color(0.89790565, 0.56697065, 0, 1)
+Label/font_sizes/font_size = 12
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_mqfw4")
 
 [node name="ScriptSwitcherPanel" type="PanelContainer" unique_id=1994007103]
@@ -28,6 +30,7 @@ offset_top = 43.0
 offset_right = 115.5
 offset_bottom = 70.0
 grow_horizontal = 2
+size_flags_horizontal = 3
 size_flags_vertical = 3
 theme = SubResource("Theme_mqfw4")
 
@@ -36,8 +39,11 @@ layout_mode = 2
 
 [node name="HelpLabel" type="Label" parent="VBoxContainer" unique_id=970401896]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
-text = "Hold Ctrl and tap Tab to cycle!"
+text = "Hold <Ctrl> and tap <Tab>"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="ItemList" type="ItemList" parent="VBoxContainer" unique_id=1066745575]
 unique_name_in_owner = true
@@ -46,6 +52,7 @@ layout_mode = 2
 size_flags_vertical = 3
 auto_width = true
 auto_height = true
-item_count = 2
-item_0/text = "Test"
-item_1/text = "Test 2"
+item_count = 3
+item_0/text = "History 1"
+item_1/text = "History 2"
+item_2/text = "History 3"
