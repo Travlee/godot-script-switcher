@@ -4,6 +4,7 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <godot_cpp/classes/viewport.hpp>
 #include <godot_cpp/classes/packed_scene.hpp>
+#include <algorithm>
 
 #include "script_switcher.hpp"
 
@@ -93,17 +94,27 @@ void ScriptSwitcher::_on_script_changed(const Ref<Script> &script)
                 return;
         }
 
-        // ? MRU History - The idea is simple: active script moves to the front
-        for (int i = 0; i < history.size(); ++i)
-        {
-                if (history[i] == path)
-                {
-                        history.erase(history.begin() + i);
-                        break;
+        TypedArray<Script> open_scripts = script_editor->get_open_scripts();
+
+        // ? Remove current script from history -> insert it at the front
+        std::erase_if(history, [&](const auto &history_script){
+                if (history_script == path){
+                        return true;
                 }
-        }
+                return false;
+        });
 
         history.insert(history.begin(), path);
+
+        // ? make sure history isn't stale; remove any not currently open
+        std::erase_if(history, [&](const auto &history_script){
+                for (const Ref<Script> &open_script : open_scripts) {
+                        if (history_script == open_script->get_path()) {
+                                return false;
+                        }
+                }
+                return true;
+        });
 }
 
 void ScriptSwitcher::_input(const Ref<InputEvent> &event)
