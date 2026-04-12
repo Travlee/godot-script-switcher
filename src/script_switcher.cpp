@@ -175,6 +175,9 @@ void ScriptSwitcher::_input(const Ref<InputEvent> &event)
         {
                 int selected_index = item_list->get_selected_items()[0];
                 int next_index = (selected_index - 1) % item_list->get_item_count();
+                if (next_index < 0){
+                        next_index += item_list->get_item_count();
+                }
                 item_list->select(next_index);
                 get_viewport()->set_input_as_handled();
         }
