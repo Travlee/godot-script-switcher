@@ -3,6 +3,8 @@ bin/
 godot/
 scratch.md
 
+.vscode/
+
 # Godot 4+ specific ignores
 .godot/
 
