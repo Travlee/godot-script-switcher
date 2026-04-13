@@ -23,6 +23,7 @@ private:
 
         void _update_list();
         void _load_popup();
+        void _fill_history();
 
 protected:
         static void _bind_methods();
@@ -30,6 +31,8 @@ protected:
 public:
         ScriptSwitcher();
         ~ScriptSwitcher();
+
+        void _on_popup_visibility_changed();
 
         void _on_script_changed(const Ref<Script> &script);
 

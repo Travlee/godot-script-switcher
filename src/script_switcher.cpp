@@ -16,6 +16,7 @@ ScriptSwitcher::~ScriptSwitcher() {}
 void ScriptSwitcher::_bind_methods()
 {
         ClassDB::bind_method(D_METHOD("_on_script_changed", "script"), &ScriptSwitcher::_on_script_changed);
+        ClassDB::bind_method(D_METHOD("_on_popup_visibility_changed"), &ScriptSwitcher::_on_popup_visibility_changed);
 }
 
 void ScriptSwitcher::_load_popup()
@@ -63,6 +64,48 @@ void ScriptSwitcher::_enter_tree()
         if (script_editor && !script_editor->is_connected("editor_script_changed", Callable(this, "_on_script_changed")))
         {
                 script_editor->connect("editor_script_changed", Callable(this, "_on_script_changed"));
+        }
+
+        if (!popup->is_connected("visibility_changed", Callable(this, "_on_popup_visibility_changed")))
+        {
+                popup->connect("visibility_changed", Callable(this, "_on_popup_visibility_changed"));
+        }
+
+        script_editor->get_current_script();
+}
+
+void ScriptSwitcher::_on_popup_visibility_changed()
+{
+        if (!popup->is_visible())
+        {
+                return;
+        }
+
+        if (history.size() == 0 && script_editor->get_open_scripts().size() > 0)
+        {
+                this->_fill_history();
+        }
+
+        this->_update_list();
+
+        if (item_list->get_item_count() > 0 && item_list->get_selected_items().size() == 0)
+        {
+                item_list->select(0);
+        }
+}
+
+// ? Lazy solution to fill history after first enable to avoid crash
+void ScriptSwitcher::_fill_history()
+{
+        TypedArray<Script> open_scripts = script_editor->get_open_scripts();
+
+        for (const Ref<Script> &script: open_scripts){
+                _on_script_changed(script);
+        }
+
+        Ref<Script> current_script = script_editor->get_current_script();
+        if (current_script.is_valid()){
+                _on_script_changed(current_script);
         }
 }
 
@@ -127,6 +170,11 @@ void ScriptSwitcher::_input(const Ref<InputEvent> &event)
                 return;
         }
 
+        if (script_editor->get_open_scripts().size() == 0)
+        {
+                return;
+        }
+
         Ref<InputEventKey> key_event = event;
 
         if (!key_event.is_valid() || key_event->is_echo())
@@ -138,7 +186,6 @@ void ScriptSwitcher::_input(const Ref<InputEvent> &event)
 
         if (!popup->is_visible() && key_event->is_pressed() && key == KEY_TAB && key_event->is_command_or_control_pressed())
         {
-                this->_update_list();
                 popup->show();
 
                 get_viewport()->set_input_as_handled();
@@ -151,7 +198,19 @@ void ScriptSwitcher::_input(const Ref<InputEvent> &event)
                 popup->hide();
                 get_viewport()->set_input_as_handled();
 
+                if (item_list->get_item_count() == 0)
+                {
+                        UtilityFunctions::printerr("Empty item_list!");
+                        return;
+                }
+
+                if (item_list->get_selected_items().size() == 0)
+                {
+                        item_list->select(0);
+                }
+
                 int selected_index = item_list->get_selected_items()[0];
+
                 if (selected_index >= history.size())
                 {
                         UtilityFunctions::printerr("Invalid history item!");
@@ -160,6 +219,11 @@ void ScriptSwitcher::_input(const Ref<InputEvent> &event)
                 String path = history[selected_index];
 
                 Ref<Resource> script_res = ResourceLoader::get_singleton()->load(path);
+                if (!script_res.is_valid())
+                {
+                        UtilityFunctions::printerr("Invalid script!");
+                        return;
+                }
                 EditorInterface::get_singleton()->edit_resource(script_res);
         }
 
