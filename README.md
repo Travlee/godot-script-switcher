@@ -23,6 +23,7 @@ This is a plugin for the [Godot Game Engine](https://godotengine.org/) created w
 
 - [Table of Contents](#table-of-contents)
 - [Features](#features)
+- [Todo](#todo)
 - [Usage](#usage)
 - [Installation](#installation)
   - [~~Godot Asset Library (recommended)~~](#godot-asset-library-recommended)
@@ -39,6 +40,11 @@ This is a plugin for the [Godot Game Engine](https://godotengine.org/) created w
 *   **Keyboard-driven Navigation**: Navigate and select scripts within the popup using familiar keyboard shortcuts.
 *   **Contextual Activation**: The popup only appears when the Script Editor is the active tab, as that makes sense for a script switcher.
 *   **Full Path Tooltips**: Each script in the list displays its full path as a tooltip.
+
+## Todo
+
+*   Add support for Godot Docs in the history.
+*   Capture holding keys, not just presses.
 
 ## Usage
 
