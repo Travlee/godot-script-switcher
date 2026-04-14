@@ -27,7 +27,7 @@ This is a plugin for the [Godot Game Engine](https://godotengine.org/) created w
 - [Usage](#usage)
 - [Installation](#installation)
   - [~~Godot Asset Library (recommended)~~](#godot-asset-library-recommended)
-  - [~~Releases (also easy)~~](#releases-also-easy)
+  - [Releases (easy)](#releases-easy)
   - [Manual (fun)](#manual-fun)
 - [Technical Details](#technical-details)
 - [Contributing](#contributing)
@@ -74,9 +74,7 @@ Once the plugin is enabled, you can use the following keyboard shortcuts:
 4. **Project → Project Settings** → **Plugins** → Enable **Godot Script Switcher**
 5. **Restart the Editor**
 
-### ~~Releases (also easy)~~
-
-> Note: No releases as of yet.
+### Releases (easy)
 
 Head to releases and download whatever version you want. I'll probably have files for Windows/Linux/Mac available there.
 
@@ -89,7 +87,7 @@ Head to releases and download whatever version you want. I'll probably have file
    2.   Click to enable **Godot Script Switcher**
 
 ### Manual (fun)
-You'll have to compile it on your target platform and then enable it in your Godot project. This project requries CMake & GCC.
+You'll have to compile it on your target platform and then enable it in your Godot project. This project requries CMake, GCC, and Ninja is recommended.
 
 1.  **Clone the Repository**.
     ```bash
@@ -98,10 +96,10 @@ You'll have to compile it on your target platform and then enable it in your God
     ```
 
 2.  **Compiling**:
-    This plugin is written in C++ using `godot-cpp`. You must compile the plugin for your specific OS and architecture using CMake.
+    This plugin is written in C++ using `godot-cpp`. You must compile the plugin for your specific OS and architecture using CMake. **I use Ninja as the build system, if you use Visual Studio, the output dir will differ so you'll have to combine them into the `addons/godot_script_switcher/` dir.**
     *   From the root of the project, configure the CMake build:
         ```bash
-        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+        cmake -G Ninja -S . -B build -DCMAKE_BUILD_TYPE=Release
         ```
     *   Build the plugin:
         ```bash
