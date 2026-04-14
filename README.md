@@ -9,9 +9,9 @@
 </p>
 
 <p align="center">
-  <!-- <a href="https://godotengine.org/asset-library/asset/xxxx">
+  <a href="https://godotengine.org/asset-library/asset/5035">
     <img src="https://img.shields.io/badge/Godot%20Asset%20Lib-4.6%2B-478cbf?logo=godot-engine" alt="Godot Asset Library">
-  </a> -->
+  </a>
   <img src="https://img.shields.io/github/license/travlee/godot-script-switcher" alt="License">
 </p>
 
@@ -26,7 +26,7 @@ This is a plugin for the [Godot Game Engine](https://godotengine.org/) created w
 - [Todo](#todo)
 - [Usage](#usage)
 - [Installation](#installation)
-  - [~~Godot Asset Library (recommended)~~](#godot-asset-library-recommended)
+  - [Godot Asset Library (recommended)](#godot-asset-library-recommended)
   - [Releases (easy)](#releases-easy)
   - [Manual (fun)](#manual-fun)
 - [Technical Details](#technical-details)
@@ -64,12 +64,10 @@ Once the plugin is enabled, you can use the following keyboard shortcuts:
 
 ## Installation
 
-### ~~Godot Asset Library (recommended)~~
-
-> Note: Not uploaded as of yet.
+### Godot Asset Library (recommended)
 
 1. Open Godot → **AssetLib** tab
-2. Search **"[Godot Script Switcher](https://godotengine.org/asset-library/asset/xxxx)"** → **Download**
+2. Search **"[GodotScriptSwitcher](https://godotengine.org/asset-library/asset/5035)"** → **Download**
 3. In the install dialog, make sure **"Ignore asset root"** is **checked**, then click **Install**
 4. **Project → Project Settings** → **Plugins** → Enable **Godot Script Switcher**
 5. **Restart the Editor**
