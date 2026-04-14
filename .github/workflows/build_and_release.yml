@@ -64,6 +64,10 @@ jobs:
           path: godot/addons/${{ env.PLUGIN_NAME }}
           merge-multiple: true
 
+      - name: Copy docs to plugin dir
+        run: >
+          cp LICENSE README.md godot/addons/${{ env.PLUGIN_NAME }}/
+
       - name: Zip plugin directory
         run: |
           7z a -tzip "${PLUGIN_NAME}-${GITHUB_REF_NAME}.zip" "godot/addons/${PLUGIN_NAME}/*"
