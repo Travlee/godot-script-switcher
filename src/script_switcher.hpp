@@ -25,6 +25,9 @@ private:
         void _load_popup();
         void _fill_history();
 
+        void _on_script_editor_input(const Ref<InputEvent> &event);
+        void _on_item_list_gui_input(const Ref<InputEvent> &event);
+
 protected:
         static void _bind_methods();
 

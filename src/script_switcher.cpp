@@ -17,6 +17,8 @@ void ScriptSwitcher::_bind_methods()
 {
         ClassDB::bind_method(D_METHOD("_on_script_changed", "script"), &ScriptSwitcher::_on_script_changed);
         ClassDB::bind_method(D_METHOD("_on_popup_visibility_changed"), &ScriptSwitcher::_on_popup_visibility_changed);
+        ClassDB::bind_method(D_METHOD("_on_script_editor_input", "event"), &ScriptSwitcher::_on_script_editor_input);
+        ClassDB::bind_method(D_METHOD("_on_item_list_gui_input", "event"), &ScriptSwitcher::_on_item_list_gui_input);
 }
 
 void ScriptSwitcher::_load_popup()
@@ -47,31 +49,40 @@ void ScriptSwitcher::_load_popup()
                 return;
         }
 
-        // ? Not sure which parent is best ...
-        // EditorInterface::get_singleton()->get_base_control()->add_child(popup);
-        add_child(popup);
+        popup->set_as_top_level(true);
+
+        if (script_editor) {
+                script_editor->add_child(popup);
+
+                if (!script_editor->is_connected("gui_input", Callable(this, "_on_script_editor_input"))) {
+                        script_editor->connect("gui_input", Callable(this, "_on_script_editor_input"));
+                }
+        } else {
+                EditorInterface::get_singleton()->get_base_control()->add_child(popup);
+        }
+
+        if (!item_list->is_connected("gui_input", Callable(this, "_on_item_list_gui_input"))) {
+                item_list->connect("gui_input", Callable(this, "_on_item_list_gui_input"));
+        }
 
         popup->hide();
 }
 
 void ScriptSwitcher::_enter_tree()
 {
-        // set_process_mode(PROCESS_MODE_ALWAYS);
+        script_editor = EditorInterface::get_singleton()->get_script_editor();
 
         this->_load_popup();
 
-        script_editor = EditorInterface::get_singleton()->get_script_editor();
         if (script_editor && !script_editor->is_connected("editor_script_changed", Callable(this, "_on_script_changed")))
         {
                 script_editor->connect("editor_script_changed", Callable(this, "_on_script_changed"));
         }
 
-        if (!popup->is_connected("visibility_changed", Callable(this, "_on_popup_visibility_changed")))
+        if (popup && !popup->is_connected("visibility_changed", Callable(this, "_on_popup_visibility_changed")))
         {
                 popup->connect("visibility_changed", Callable(this, "_on_popup_visibility_changed"));
         }
-
-        script_editor->get_current_script();
 }
 
 void ScriptSwitcher::_on_popup_visibility_changed()
@@ -92,6 +103,8 @@ void ScriptSwitcher::_on_popup_visibility_changed()
         {
                 item_list->select(0);
         }
+
+        popup->set_anchors_and_offsets_preset(Control::PRESET_CENTER_TOP, Control::PRESET_MODE_KEEP_SIZE);
 }
 
 // ? Lazy solution to fill history after first enable to avoid crash
@@ -116,9 +129,17 @@ void ScriptSwitcher::_exit_tree()
                 popup->queue_free();
         }
 
-        if (script_editor && script_editor->is_connected("editor_script_changed", Callable(this, "_on_script_changed")))
+        if (script_editor)
         {
-                script_editor->disconnect("editor_script_changed", Callable(this, "_on_script_changed"));
+                if (script_editor->is_connected("editor_script_changed", Callable(this, "_on_script_changed")))
+                {
+                        script_editor->disconnect("editor_script_changed", Callable(this, "_on_script_changed"));
+                }
+
+                if (script_editor->is_connected("gui_input", Callable(this, "_on_script_editor_input")))
+                {
+                        script_editor->disconnect("gui_input", Callable(this, "_on_script_editor_input"));
+                }
         }
 }
 
@@ -160,16 +181,65 @@ void ScriptSwitcher::_on_script_changed(const Ref<Script> &script)
         });
 }
 
+void ScriptSwitcher::_update_list()
+{
+        item_list->clear();
+        for (const String &path : history)
+        {
+                item_list->add_item(path.get_file());
+                item_list->set_item_tooltip(item_list->get_item_count() - 1, path);
+        }
+
+        // ? Selects previous script for faster switching
+        if (item_list->get_item_count() > 1)
+        {
+                item_list->select(1);
+        }
+}
+
 void ScriptSwitcher::_input(const Ref<InputEvent> &event)
 {
-        // TODO rework this to a configurable keybind for the plugin
+        if (popup->is_visible())
+        {
+                return;
+        }
 
-        // ? Best method I could find to limit functionalty to when script editor is active
         if (!script_editor->is_visible_in_tree() || script_editor->get_open_scripts().size() == 0)
         {
                 return;
         }
 
+        Ref<InputEventKey> key_event = event;
+        if (key_event.is_valid() && key_event->is_pressed() && !key_event->is_echo())
+        {
+                if (key_event->get_keycode() == KEY_TAB && key_event->is_command_or_control_pressed())
+                {
+                        popup->show();
+                        item_list->grab_focus();
+                        get_viewport()->set_input_as_handled();
+                }
+        }
+}
+
+void ScriptSwitcher::_on_script_editor_input(const Ref<InputEvent> &event)
+{
+        Ref<InputEventKey> key_event = event;
+        if (key_event.is_valid() && key_event->is_pressed() && !key_event->is_echo())
+        {
+                if (key_event->get_keycode() == KEY_TAB && key_event->is_command_or_control_pressed())
+                {
+                        if (!popup->is_visible())
+                        {
+                                popup->show();
+                                item_list->grab_focus();
+                                script_editor->accept_event();
+                        }
+                }
+        }
+}
+
+void ScriptSwitcher::_on_item_list_gui_input(const Ref<InputEvent> &event)
+{
         Ref<InputEventKey> key_event = event;
         if (!key_event.is_valid())
         {
@@ -178,20 +248,7 @@ void ScriptSwitcher::_input(const Ref<InputEvent> &event)
 
         auto key = key_event->get_keycode();
         bool pressed = key_event->is_pressed();
-        bool echo = key_event->is_echo();
 
-        if (!popup->is_visible())
-        {
-                if (pressed && !echo && key == KEY_TAB && key_event->is_command_or_control_pressed())
-                {
-                        popup->show();
-                        item_list->grab_focus();
-                        get_viewport()->set_input_as_handled();
-                }
-                return;
-        }
-
-        // Popup is visible
         if (pressed)
         {
                 if (key == KEY_TAB || key == KEY_DOWN || key == KEY_UP)
@@ -214,8 +271,7 @@ void ScriptSwitcher::_input(const Ref<InputEvent> &event)
                                 item_list->select(next_index);
                                 item_list->ensure_current_is_visible();
                         }
-                        get_viewport()->set_input_as_handled();
-                        return;
+                        item_list->accept_event();
                 }
         }
         else // Released
@@ -223,47 +279,25 @@ void ScriptSwitcher::_input(const Ref<InputEvent> &event)
                 if (key == KEY_CTRL)
                 {
                         popup->hide();
-                        get_viewport()->set_input_as_handled();
+                        item_list->accept_event();
 
                         if (item_list->get_item_count() == 0)
                         {
-                                UtilityFunctions::printerr("Empty item_list!");
                                 return;
                         }
 
                         PackedInt32Array selected = item_list->get_selected_items();
                         int selected_index = selected.size() > 0 ? selected[0] : 0;
 
-                        if (selected_index >= history.size())
+                        if (selected_index < history.size())
                         {
-                                UtilityFunctions::printerr("Invalid history item!");
-                                return;
+                                String path = history[selected_index];
+                                Ref<Resource> script_res = ResourceLoader::get_singleton()->load(path);
+                                if (script_res.is_valid())
+                                {
+                                        EditorInterface::get_singleton()->edit_resource(script_res);
+                                }
                         }
-                        String path = history[selected_index];
-
-                        Ref<Resource> script_res = ResourceLoader::get_singleton()->load(path);
-                        if (!script_res.is_valid())
-                        {
-                                UtilityFunctions::printerr("Invalid script!");
-                                return;
-                        }
-                        EditorInterface::get_singleton()->edit_resource(script_res);
                 }
-        }
-}
-
-void ScriptSwitcher::_update_list()
-{
-        item_list->clear();
-        for (const String &path : history)
-        {
-                item_list->add_item(path.get_file());
-                item_list->set_item_tooltip(item_list->get_item_count() - 1, path);
-        }
-
-        // ? Selects previous script for faster switching
-        if (item_list->get_item_count() > 1)
-        {
-                item_list->select(1);
         }
 }
