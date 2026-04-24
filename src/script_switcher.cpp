@@ -165,85 +165,90 @@ void ScriptSwitcher::_input(const Ref<InputEvent> &event)
         // TODO rework this to a configurable keybind for the plugin
 
         // ? Best method I could find to limit functionalty to when script editor is active
-        if (!script_editor->is_visible_in_tree())
-        {
-                return;
-        }
-
-        if (script_editor->get_open_scripts().size() == 0)
+        if (!script_editor->is_visible_in_tree() || script_editor->get_open_scripts().size() == 0)
         {
                 return;
         }
 
         Ref<InputEventKey> key_event = event;
-
-        if (!key_event.is_valid() || key_event->is_echo())
+        if (!key_event.is_valid())
         {
                 return;
         }
 
         auto key = key_event->get_keycode();
+        bool pressed = key_event->is_pressed();
+        bool echo = key_event->is_echo();
 
-        if (!popup->is_visible() && key_event->is_pressed() && key == KEY_TAB && key_event->is_command_or_control_pressed())
+        if (!popup->is_visible())
         {
-                popup->show();
-
-                get_viewport()->set_input_as_handled();
-
+                if (pressed && !echo && key == KEY_TAB && key_event->is_command_or_control_pressed())
+                {
+                        popup->show();
+                        item_list->grab_focus();
+                        get_viewport()->set_input_as_handled();
+                }
                 return;
         }
 
-        if (popup->is_visible() && !key_event->is_pressed() && key == KEY_CTRL)
+        // Popup is visible
+        if (pressed)
         {
-                popup->hide();
-                get_viewport()->set_input_as_handled();
-
-                if (item_list->get_item_count() == 0)
+                if (key == KEY_TAB || key == KEY_DOWN || key == KEY_UP)
                 {
-                        UtilityFunctions::printerr("Empty item_list!");
+                        if (item_list->get_item_count() > 0)
+                        {
+                                PackedInt32Array selected = item_list->get_selected_items();
+                                int selected_index = selected.size() > 0 ? selected[0] : 0;
+                                int next_index = selected_index;
+
+                                if (key == KEY_TAB || key == KEY_DOWN)
+                                {
+                                        next_index = (selected_index + 1) % item_list->get_item_count();
+                                }
+                                else if (key == KEY_UP)
+                                {
+                                        next_index = (selected_index - 1 + item_list->get_item_count()) % item_list->get_item_count();
+                                }
+
+                                item_list->select(next_index);
+                                item_list->ensure_current_is_visible();
+                        }
+                        get_viewport()->set_input_as_handled();
                         return;
                 }
-
-                if (item_list->get_selected_items().size() == 0)
-                {
-                        item_list->select(0);
-                }
-
-                int selected_index = item_list->get_selected_items()[0];
-
-                if (selected_index >= history.size())
-                {
-                        UtilityFunctions::printerr("Invalid history item!");
-                        return;
-                }
-                String path = history[selected_index];
-
-                Ref<Resource> script_res = ResourceLoader::get_singleton()->load(path);
-                if (!script_res.is_valid())
-                {
-                        UtilityFunctions::printerr("Invalid script!");
-                        return;
-                }
-                EditorInterface::get_singleton()->edit_resource(script_res);
         }
-
-        if (popup->is_visible() && key_event->is_pressed() && (key == KEY_TAB || key == KEY_DOWN))
+        else // Released
         {
-                int selected_index = item_list->get_selected_items()[0];
-                int next_index = (selected_index + 1) % item_list->get_item_count();
-                item_list->select(next_index);
-                get_viewport()->set_input_as_handled();
-        }
+                if (key == KEY_CTRL)
+                {
+                        popup->hide();
+                        get_viewport()->set_input_as_handled();
 
-        if (popup->is_visible() && key_event->is_pressed() && key == KEY_UP)
-        {
-                int selected_index = item_list->get_selected_items()[0];
-                int next_index = (selected_index - 1) % item_list->get_item_count();
-                if (next_index < 0){
-                        next_index += item_list->get_item_count();
+                        if (item_list->get_item_count() == 0)
+                        {
+                                UtilityFunctions::printerr("Empty item_list!");
+                                return;
+                        }
+
+                        PackedInt32Array selected = item_list->get_selected_items();
+                        int selected_index = selected.size() > 0 ? selected[0] : 0;
+
+                        if (selected_index >= history.size())
+                        {
+                                UtilityFunctions::printerr("Invalid history item!");
+                                return;
+                        }
+                        String path = history[selected_index];
+
+                        Ref<Resource> script_res = ResourceLoader::get_singleton()->load(path);
+                        if (!script_res.is_valid())
+                        {
+                                UtilityFunctions::printerr("Invalid script!");
+                                return;
+                        }
+                        EditorInterface::get_singleton()->edit_resource(script_res);
                 }
-                item_list->select(next_index);
-                get_viewport()->set_input_as_handled();
         }
 }
 
