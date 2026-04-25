@@ -186,7 +186,16 @@ void ScriptSwitcher::_update_list()
         item_list->clear();
         for (const String &path : history)
         {
-                item_list->add_item(path.get_file());
+                String filename = path.get_file();
+                String dir = path.get_base_dir().replace("res://", "");
+
+                String display_text = filename;
+                if (!dir.is_empty())
+                {
+                        display_text += " (" + dir + ")";
+                }
+
+                item_list->add_item(display_text);
                 item_list->set_item_tooltip(item_list->get_item_count() - 1, path);
         }
 
